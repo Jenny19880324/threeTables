@@ -28,7 +28,7 @@
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 				camera.position.x = 50;
 				camera.position.z = 200;
-				camera.position.y = 70;
+				camera.position.y = 100;
             }
 
             function initControls() {
@@ -45,7 +45,7 @@
             function initScene() {
 				scene = new THREE.Scene();
 
-				var ambient = new THREE.AmbientLight( 0x101010 );
+				var ambient = new THREE.AmbientLight( 0x808080 );
 				scene.add( ambient );
 
                 var light = new THREE.SpotLight( 0xffffff, 1.5 );
@@ -165,6 +165,13 @@
 
 			function loadScene(){
 
+                // material
+                var scene1_metal = new THREE.MeshPhongMaterial( 
+									{ color: 0x8F8F8F, 
+									  specular: 0xAA9999, 
+									  shininess: 100, 
+									  shading: THREE.FlatShading 
+									} )
 				// texture
 
 				var manager = new THREE.LoadingManager();
@@ -184,23 +191,36 @@
 				var onError = function ( xhr ) {
 				};
 
-                var wood0 = new THREE.Texture();
+                var scene0_wood = new THREE.Texture();
 				var loader = new THREE.ImageLoader( manager );
 				loader.load( 'textures/scene0_wood.jpg', function ( image ) {
-					wood0.image = image;
-					wood0.needsUpdate = true;
+					scene0_wood.image = image;
+					scene0_wood.needsUpdate = true;
 				} );
 
-				var blueCloth = new THREE.Texture();
+				var scene1_wood = new THREE.Texture();
+				var loader = new THREE.ImageLoader( manager );
+				loader.load( 'textures/scene1_wood.jpg', function ( image ) {
+					scene1_wood.image = image;
+					scene1_wood.needsUpdate = true;
+				} );
+
+				var scene1_blueCloth = new THREE.Texture();
 				var loader = new THREE.ImageLoader( manager );
 				loader.load( 'textures/scene1_blueCloth.jpg', function ( image ) {
-					blueCloth.image = image;
-					blueCloth.needsUpdate = true;
+					scene1_blueCloth.image = image;
+					scene1_blueCloth.needsUpdate = true;
 				} );
 
+				var scene1_blackCloth = new THREE.Texture();
+				var loader = new THREE.ImageLoader( manager );
+				loader.load( 'textures/scene1_blackCloth.jpg', function ( image ) {
+					scene1_blackCloth.image = image;
+					scene1_blackCloth.needsUpdate = true;
+				});
 
 				// model
-				//table
+				//furniture in the first scene
 				var loader = new THREE.OBJLoader( manager );
 				loader.load( 'obj/tables/scene0_table0.obj', function ( object ) {
 
@@ -211,7 +231,7 @@
 					        child.receiveShadow = true;
 
 							if(child.name == "top" ){
-								child.material.map = wood0;
+								child.material.map = scene0_wood;
 							}
 						}
 
@@ -223,7 +243,6 @@
 
 				}, onProgress, onError );
 
-                //chair
 				var loader = new THREE.OBJLoader( manager );
 				loader.load( 'obj/chairs/scene0_chair0.obj', function ( object ) {
 
@@ -234,7 +253,7 @@
 					        child.receiveShadow = true;
 
 							if(child.name == "top" ){
-								child.material.map = wood0;
+								child.material.map = scene0_wood;
 							}
 						}
 
@@ -277,30 +296,134 @@
 							child.castShadow = true;
 					        child.receiveShadow = true;
 
-							if(child.name == "2" ){
-								child.material.map = blueCloth;
+							if(child.name == "top" ){
+								child.material.map = scene1_blueCloth;
+							}
+                            else if(child.name == "back" ){
+								child.material.map = scene1_wood;
+							}
+							else{
+								child.material = scene1_metal;
 							}
 						}
-
 					} );
-
                     object.name = 'scene1_chair0.obj';
 					object.position.y = - 60;
 					scene.add( object );
 
 				}, onProgress, onError );
 
+			    var loader = new THREE.OBJLoader( manager );
+				loader.load( 'obj/chairs/scene1_chair1.obj', function ( object ) {
 
+					object.traverse( function ( child ) {
+
+						if ( child instanceof THREE.Mesh ) {
+							child.castShadow = true;
+					        child.receiveShadow = true;
+
+							if(child.name == "back" ){
+								child.material.map = scene1_wood;
+							}
+							else if(child.name == "top"){
+								child.material.map = scene1_blueCloth;
+							}
+							else if(child.name == "legs"){
+								child.material = scene1_metal;
+							}
+						}
+					} );
+
+                    object.name = 'scene1_chair1.obj';
+					object.position.y = - 60;
+					scene.add( object );
+
+				}, onProgress, onError );
+
+				var loader = new THREE.OBJLoader( manager );
+				loader.load( 'obj/chairs/scene1_chair2.obj', function ( object ) {
+
+					object.traverse( function ( child ) {
+
+						if ( child instanceof THREE.Mesh ) {
+							child.castShadow = true;
+					        child.receiveShadow = true;
+
+							if(child.name == "top" ){
+								child.material.map = scene1_blackCloth;
+							}
+							else if(child.name == "legs"){
+								child.material = scene1_metal;
+							}
+						}
+					} );
+
+                    object.name = 'scene1_chair2.obj';
+					object.position.y = - 60;
+					scene.add( object );
+
+				}, onProgress, onError );
+
+				var loader = new THREE.OBJLoader( manager );
+				loader.load( 'obj/tables/scene1_table0.obj', function ( object ) {
+
+					object.traverse( function ( child ) {
+
+						if ( child instanceof THREE.Mesh ) {
+							child.castShadow = true;
+					        child.receiveShadow = true;
+
+							if(child.name == "top" ){
+								child.material.map = scene1_wood;
+							}
+							else if(child.name == "legs"){
+								child.material = scene1_metal;
+							}
+						}
+					} );
+
+                    object.name = 'scene1_table0.obj';
+					object.position.y = - 60;
+					scene.add( object );
+
+				}, onProgress, onError );
+
+			    var loader = new THREE.OBJLoader( manager );
+				loader.load( 'obj/tables/scene1_table1.obj', function ( object ) {
+
+					object.traverse( function ( child ) {
+
+						if ( child instanceof THREE.Mesh ) {
+							child.castShadow = true;
+					        child.receiveShadow = true;
+
+							if(child.name == "top" ){
+								child.material.map = scene1_wood;
+							}
+							else if(child.name == "legs"){
+								child.material = scene1_metal;
+							}
+						}
+					} );
+
+                    object.name = 'scene1_table1.obj';
+					object.position.y = - 60;
+					scene.add( object );
+
+				}, onProgress, onError );
+
+
+                //background
                 var floor = new THREE.Mesh( 
                 	new THREE.PlaneGeometry( 10000, 10000 ).rotateX(-Math.PI / 2).translate(0, -60, 0),
-                	new THREE.MeshBasicMaterial( {color: 0x4f4f4f} )
+                	new THREE.MeshBasicMaterial( {color: 0xafafaf} )
                  );
                 floor.receiveShadow = true;
                 scene.add( floor );
 
                 var wall = new THREE.Mesh( 
                 	new THREE.PlaneGeometry( 10000, 10000 ).translate( 0, 0, -500),
-                	new THREE.MeshBasicMaterial( {color: 0x4f4f4f} )
+                	new THREE.MeshBasicMaterial( {color: 0xafafaf} )
                  );
                 wall.receiveShadow = true;
                 scene.add( wall );
