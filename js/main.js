@@ -45,24 +45,40 @@
             function initScene() {
 				scene = new THREE.Scene();
 
-				var ambient = new THREE.AmbientLight( 0x808080 );
-				scene.add( ambient );
+				var scene0_ambient = new THREE.AmbientLight( 0x404040 );
+				scene0_ambient.name = 'scene0_ambient';
+				scene.add( scene0_ambient );
 
-                var light = new THREE.SpotLight( 0xffffff, 1.5 );
-				light.position.set( 50, 500, 200 );
-				light.castShadow = true;
-				light.shadowDarkness = 0.5;
+				var scene1_ambient = new THREE.AmbientLight( 0x808080 );
+				scene1_ambient.name = 'scene1_ambient';
+				scene.add( scene1_ambient );
 
-				light.shadowCameraNear = 200;
-				light.shadowCameraFar = camera.far;
-				light.shadowCameraFov = 50;
+				var scene0_light = new THREE.SpotLight( 0x4f4f4f, 1.5 );
+				scene0_light.position.set( 50, 500, 200 );
+				scene0_light.castShadow = true;
+				scene0_light.shadowDarkness = 0.8;
+				scene0_light.shadowCameraNear = 200;
+				scene0_light.shadowCameraFar = camera.far;
+				scene0_light.shadowCameraFov = 50;
+				scene0_light.shadowBias = -0.00022;
+				scene0_light.shadowMapWidth = 2048;
+				scene0_light.shadowMapHeight = 2048;
+				scene0_light.name = 'scene0_light';
+				scene.add( scene0_light );
 
-				light.shadowBias = -0.00022;
 
-				light.shadowMapWidth = 2048;
-				light.shadowMapHeight = 2048;
-
-				scene.add( light );
+                var scene1_light = new THREE.SpotLight( 0xffffff, 1.5 );
+				scene1_light.position.set( 50, 500, 200 );
+				scene1_light.castShadow = true;
+				scene1_light.shadowDarkness = 0.5;
+				scene1_light.shadowCameraNear = 200;
+				scene1_light.shadowCameraFar = camera.far;
+				scene1_light.shadowCameraFov = 50;
+				scene1_light.shadowBias = -0.00022;
+				scene1_light.shadowMapWidth = 2048;
+				scene1_light.shadowMapHeight = 2048;
+				scene1_light.name = 'scene1_light';
+				scene.add( scene1_light );
 
 				plane = new THREE.Mesh(
 					new THREE.PlaneBufferGeometry( 2000, 2000, 8, 8 ),
@@ -414,19 +430,37 @@
 
 
                 //background
-                var floor = new THREE.Mesh( 
+                var scene0_floor = new THREE.Mesh( 
+                	new THREE.PlaneGeometry( 10000, 10000 ).rotateX(-Math.PI / 2).translate(0, -60, 0),
+                	new THREE.MeshBasicMaterial( {color: 0x1f1f1f} )
+                 );
+                scene0_floor.receiveShadow = true;
+                scene0_floor.name = 'scene0_floor';
+                scene.add( scene0_floor );
+
+                var scene0_wall = new THREE.Mesh( 
+                	new THREE.PlaneGeometry( 10000, 10000 ).translate( 0, 0, -500),
+                	new THREE.MeshBasicMaterial( {color: 0x1f1f1f} )
+                 );
+                scene0_wall.receiveShadow = true;
+                scene0_wall.name = 'scene0_wall';
+                scene.add( scene0_wall );
+
+                var scene1_floor = new THREE.Mesh( 
                 	new THREE.PlaneGeometry( 10000, 10000 ).rotateX(-Math.PI / 2).translate(0, -60, 0),
                 	new THREE.MeshBasicMaterial( {color: 0xafafaf} )
                  );
-                floor.receiveShadow = true;
-                scene.add( floor );
+                scene1_floor.receiveShadow = true;
+                scene1_floor.name = 'scene1_floor';
+                scene.add( scene1_floor );
 
-                var wall = new THREE.Mesh( 
+                var scene1_wall = new THREE.Mesh( 
                 	new THREE.PlaneGeometry( 10000, 10000 ).translate( 0, 0, -500),
                 	new THREE.MeshBasicMaterial( {color: 0xafafaf} )
                  );
-                wall.receiveShadow = true;
-                scene.add( wall );
+                scene1_wall.receiveShadow = true;
+                scene1_wall.name = 'scene1_wall';
+                scene.add( scene1_wall );
 			}
 
 			function animate() {
@@ -436,14 +470,12 @@
 
 			function render() {
 				controls.update();
-				switchToScene(1);
+				switchToScene(0);
 				renderer.render( scene, camera );
 			}
 
 			function switchToScene(sceneNumber){
-				scene.children.filter(function(o){
-					return o.type == 'Object3D';
-				}).forEach(function(o){
+				scene.children.forEach(function(o){
 					if( o.name.indexOf("scene" + sceneNumber) != -1){
 						o.visible = true;
 					}
@@ -451,5 +483,6 @@
 						o.visible = false;
 					}
 				})
+				plane.visible = true;
 			}
 
