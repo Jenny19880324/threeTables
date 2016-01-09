@@ -35,7 +35,8 @@
 
             var INTERSECTED, SELECTED;
 
-            var table = [], plane, floor, wall;
+            var table, plane, floor, wall;
+            var chairs = [];
 
 			init();
 			animate();
@@ -47,6 +48,7 @@
 				document.body.appendChild( container );
 
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+				camera.position.x = 50;
 				camera.position.z = 200;
 				camera.position.y = 70;
 
@@ -117,9 +119,9 @@
 				} );
 
 				// model
-
+				//table
 				var loader = new THREE.OBJLoader( manager );
-				loader.load( 'obj/tables/table2.obj', function ( object ) {
+				loader.load( 'obj/tables/table0.obj', function ( object ) {
 
 					object.traverse( function ( child ) {
 
@@ -127,7 +129,6 @@
 							child.castShadow = true;
 					        child.receiveShadow = true;
 
-							table.push( child );
 							if(child.name == "top" ){
 								child.material.map = texture;
 							}
@@ -135,11 +136,48 @@
 
 					} );
 
-					object.position.y = - 80;
+                    table = object;
+					object.position.y = - 60;
 					scene.add( object );
 
 				}, onProgress, onError );
-				//
+
+                //chair
+				var loader = new THREE.OBJLoader( manager );
+				loader.load( 'obj/chairs/chair0.obj', function ( object ) {
+
+					object.traverse( function ( child ) {
+
+						if ( child instanceof THREE.Mesh ) {
+							child.castShadow = true;
+					        child.receiveShadow = true;
+
+							if(child.name == "top" ){
+								child.material.map = texture;
+							}
+						}
+
+					} );
+
+					object.position.y = - 60;
+					scene.add( object );
+
+					chairs.push(object);
+                    for(var i = 0; i < 3; i++){
+                	    chairs.push(object.clone());
+                	    scene.add(chairs[i+1]);
+                    }
+                    chairs[1].children.forEach(function(mesh){
+                    	mesh.translateX(-50);
+                    });
+                    chairs[2].children.forEach(function(mesh){
+                    	mesh.rotateOnAxis(new THREE.Vector3(0,1,0),Math.PI);
+                    });
+                    chairs[3].children.forEach(function(mesh){
+                    	mesh.rotateOnAxis(new THREE.Vector3(0,1,0),Math.PI).translateX(-50);
+                    });
+
+				}, onProgress, onError );
 
                plane = new THREE.Mesh(
 					new THREE.PlaneBufferGeometry( 2000, 2000, 8, 8 ),
@@ -149,7 +187,7 @@
 				scene.add( plane );
 
                 floor = new THREE.Mesh( 
-                	new THREE.PlaneGeometry( 10000, 10000 ).rotateX(-Math.PI / 2).translate(0, -80, 0),
+                	new THREE.PlaneGeometry( 10000, 10000 ).rotateX(-Math.PI / 2).translate(0, -60, 0),
                 	new THREE.MeshBasicMaterial( {color: 0x4f4f4f} )
                  );
                 floor.receiveShadow = true;
@@ -212,20 +250,17 @@
 
 					var intersects = raycaster.intersectObject( plane );
 
+                    var newPosition = intersects[ 0 ].point.sub( offset );
 					if ( intersects.length > 0 ) {
-
-						//SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
-						var newPosition = intersects[ 0 ].point.sub( offset );
-						table.forEach(function(object){
-							object.position.copy(newPosition);
-						});
+						SELECTED.parent.children.forEach(function(mesh){
+							mesh.position.copy(newPosition);
+						})
 					}
-
 					return;
 
 				}
 
-				var intersects = raycaster.intersectObjects( table );
+				var intersects = raycaster.intersectObjects( chairs.concat(table), true );
 
 				if ( intersects.length > 0 ) {
 
@@ -261,7 +296,7 @@
 
 				raycaster.setFromCamera( mouse, camera );
 
-				var intersects = raycaster.intersectObjects( table );
+				var intersects = raycaster.intersectObjects( chairs.concat(table), true );
 
 				if ( intersects.length > 0 ) {
 
