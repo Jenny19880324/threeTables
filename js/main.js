@@ -272,17 +272,128 @@
                 scene0.add( wall );
 			}
 
-			function animate() {
+		    function loadScene1(){
 
+				// texture
+
+				var manager = new THREE.LoadingManager();
+				manager.onProgress = function ( item, loaded, total ) {
+
+					console.log( item, loaded, total );
+
+				};
+
+				var texture = new THREE.Texture();
+
+				var onProgress = function ( xhr ) {
+					if ( xhr.lengthComputable ) {
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						console.log( Math.round(percentComplete, 2) + '% downloaded' );
+					}
+				};
+
+				var onError = function ( xhr ) {
+				};
+
+
+				var loader = new THREE.ImageLoader( manager );
+				loader.load( 'textures/wood.jpg', function ( image ) {
+
+					texture.image = image;
+					texture.needsUpdate = true;
+
+				} );
+
+				// model
+				//table
+				var loader = new THREE.OBJLoader( manager );
+				loader.load( 'obj/tables/table0.obj', function ( object ) {
+
+					object.traverse( function ( child ) {
+
+						if ( child instanceof THREE.Mesh ) {
+							child.castShadow = true;
+					        child.receiveShadow = true;
+
+							if(child.name == "top" ){
+								child.material.map = texture;
+							}
+						}
+
+					} );
+
+                    table = object;
+					object.position.y = - 60;
+					scene0.add( object );
+
+				}, onProgress, onError );
+
+                //chair
+				var loader = new THREE.OBJLoader( manager );
+				loader.load( 'obj/chairs/chair0.obj', function ( object ) {
+
+					object.traverse( function ( child ) {
+
+						if ( child instanceof THREE.Mesh ) {
+							child.castShadow = true;
+					        child.receiveShadow = true;
+
+							if(child.name == "top" ){
+								child.material.map = texture;
+							}
+						}
+
+					} );
+
+					object.position.y = - 60;
+					scene0.add( object );
+
+					chairs.push(object);
+                    for(var i = 0; i < 3; i++){
+                	    chairs.push(object.clone());
+                	    scene0.add(chairs[i+1]);
+                    }
+                    chairs[1].children.forEach(function(mesh){
+                    	mesh.translateX(-50);
+                    });
+                    chairs[2].children.forEach(function(mesh){
+                    	mesh.rotateOnAxis(new THREE.Vector3(0,1,0),Math.PI);
+                    });
+                    chairs[3].children.forEach(function(mesh){
+                    	mesh.rotateOnAxis(new THREE.Vector3(0,1,0),Math.PI).translateX(-50);
+                    });
+
+				}, onProgress, onError );
+
+               plane = new THREE.Mesh(
+					new THREE.PlaneBufferGeometry( 2000, 2000, 8, 8 ),
+					new THREE.MeshBasicMaterial( { visible: false } )
+				);
+
+				scene0.add( plane );
+
+                floor = new THREE.Mesh( 
+                	new THREE.PlaneGeometry( 10000, 10000 ).rotateX(-Math.PI / 2).translate(0, -60, 0),
+                	new THREE.MeshBasicMaterial( {color: 0x4f4f4f} )
+                 );
+                floor.receiveShadow = true;
+                scene0.add( floor );
+
+                wall = new THREE.Mesh( 
+                	new THREE.PlaneGeometry( 10000, 10000 ).translate( 0, 0, -500),
+                	new THREE.MeshBasicMaterial( {color: 0x4f4f4f} )
+                 );
+                wall.receiveShadow = true;
+                scene0.add( wall );
+			}
+
+
+			function animate() {
 				requestAnimationFrame( animate );
 				render();
-
 			}
 
 			function render() {
-
 				controls.update();
-
 				renderer.render( scene0, camera );
-
 			}
