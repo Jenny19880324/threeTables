@@ -11,6 +11,8 @@
 
             var INTERSECTED, SELECTED;
 
+            var currentScene = 0;
+
 			init();
 			animate();
 
@@ -122,8 +124,21 @@
 				renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
 				renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
 				renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+				document.addEventListener( 'keydown', onDocumentKeyDown,false);
 
 				window.addEventListener( 'resize', onWindowResize, false );
+
+                function onDocumentKeyDown( event ){
+                    switch(event.keyCode) {
+                        case 37: // left key pressed
+                            currentScene = ( currentScene + 1 ) % 3;
+                            console.log("currentScene:"+currentScene);
+                            break;
+                        case 39: // right key pressed
+                            currentScene = ( currentScene + 2 ) % 3;
+                            break;  
+                    }   
+                }
 
 				function onWindowResize() {
                     camera.aspect = window.innerWidth / window.innerHeight;
@@ -549,7 +564,7 @@
 
 			function render() {
 				controls.update();
-				switchToScene(2);
+				switchToScene(currentScene);
 				renderer.render( scene, camera );
 			}
 
