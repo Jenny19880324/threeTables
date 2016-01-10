@@ -1,0 +1,7 @@
+start a local web server 
+clone the repositoty to the Directory of the local web server
+
+if you don't know how to do that, check this link
+https://ole.michelsen.dk/blog/setup-local-web-server-apache-php-osx-yosemite.html
+
+or you can simply go to my website jingli.us
