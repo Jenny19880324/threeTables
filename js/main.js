@@ -53,6 +53,10 @@
 				scene1_ambient.name = 'scene1_ambient';
 				scene.add( scene1_ambient );
 
+				var scene2_ambient = new THREE.AmbientLight( 0xFFF0F0 );
+				scene2_ambient.name = 'scene2_ambient';
+				scene.add( scene2_ambient );
+
 				var scene0_light = new THREE.SpotLight( 0x4f4f4f, 1.5 );
 				scene0_light.position.set( 50, 500, 200 );
 				scene0_light.castShadow = true;
@@ -79,6 +83,20 @@
 				scene1_light.shadowMapHeight = 2048;
 				scene1_light.name = 'scene1_light';
 				scene.add( scene1_light );
+
+				var scene2_light = new THREE.SpotLight( 0xffffff, 1.5 );
+				scene2_light.position.set( 50, 500, 200 );
+				scene2_light.castShadow = true;
+				scene2_light.shadowDarkness = 0.5;
+				scene2_light.shadowCameraNear = 200;
+				scene2_light.shadowCameraFar = camera.far;
+				scene2_light.shadowCameraFov = 50;
+				scene2_light.shadowBias = -0.00022;
+				scene2_light.shadowMapWidth = 2048;
+				scene2_light.shadowMapHeight = 2048;
+				scene2_light.name = 'scene2_light';
+				scene.add( scene2_light );
+
 
 				plane = new THREE.Mesh(
 					new THREE.PlaneBufferGeometry( 2000, 2000, 8, 8 ),
@@ -180,21 +198,11 @@
             }
 
 			function loadScene(){
-
-                // material
-                var scene1_metal = new THREE.MeshPhongMaterial( 
-									{ color: 0x8F8F8F, 
-									  specular: 0xAA9999, 
-									  shininess: 100, 
-									  shading: THREE.FlatShading 
-									} )
 				// texture
 
 				var manager = new THREE.LoadingManager();
 				manager.onProgress = function ( item, loaded, total ) {
-
 					console.log( item, loaded, total );
-
 				};
 
 				var onProgress = function ( xhr ) {
@@ -221,6 +229,14 @@
 					scene1_wood.needsUpdate = true;
 				} );
 
+				var scene2_wood = new THREE.Texture();
+				var loader = new THREE.ImageLoader( manager );
+				loader.load( 'textures/scene2_wood.jpg', function ( image ) {
+					scene2_wood.image = image;
+					scene2_wood.needsUpdate = true;
+				} );
+
+
 				var scene1_blueCloth = new THREE.Texture();
 				var loader = new THREE.ImageLoader( manager );
 				loader.load( 'textures/scene1_blueCloth.jpg', function ( image ) {
@@ -234,6 +250,29 @@
 					scene1_blackCloth.image = image;
 					scene1_blackCloth.needsUpdate = true;
 				});
+
+				// material
+                var scene1_metal = new THREE.MeshPhongMaterial( 
+									{ color: 0x8F8F8F, 
+									  specular: 0xAA9999, 
+									  shininess: 100, 
+									  shading: THREE.FlatShading 
+									} );
+
+                var scene2_metal = new THREE.MeshPhongMaterial( 
+									{ color: 0x4F2F0F, 
+									  specular: 0xCC9999, 
+									  shininess: 100, 
+									  shading: THREE.FlatShading 
+									} );
+                var scene2_wood_material = new THREE.MeshPhongMaterial(
+                                    {
+                                    	color:0xaf0f0f,
+                                    	specular:0x999999,
+                                    	shininess: 50,
+                                    	shading: THREE.FlatShading,
+                                    	map: scene2_wood
+                                    } );
 
 				// model
 				//furniture in the first scene
@@ -428,6 +467,30 @@
 
 				}, onProgress, onError );
 
+				//funiture in the third scene
+				var loader = new THREE.OBJLoader( manager );
+				loader.load( 'obj/tables/scene2_table0.obj', function ( object ) {
+
+					object.traverse( function ( child ) {
+
+						if ( child instanceof THREE.Mesh ) {
+							child.castShadow = true;
+					        child.receiveShadow = true;
+
+							if(child.name == "wood" ){
+								child.material = scene2_wood_material;
+							}
+							else if(child.name == "metal"){
+								child.material = scene2_metal;
+							}
+						}
+					} );
+
+                    object.name = 'scene2_table0.obj';
+					object.position.y = - 60;
+					scene.add( object );
+
+				}, onProgress, onError );
 
                 //background
                 var scene0_floor = new THREE.Mesh( 
@@ -461,6 +524,22 @@
                 scene1_wall.receiveShadow = true;
                 scene1_wall.name = 'scene1_wall';
                 scene.add( scene1_wall );
+
+                var scene2_floor = new THREE.Mesh( 
+                	new THREE.PlaneGeometry( 10000, 10000 ).rotateX(-Math.PI / 2).translate(0, -60, 0),
+                	new THREE.MeshBasicMaterial( {color: 0xbfafaf} )
+                 );
+                scene2_floor.receiveShadow = true;
+                scene2_floor.name = 'scene2_floor';
+                scene.add( scene2_floor );
+
+                var scene2_wall = new THREE.Mesh( 
+                	new THREE.PlaneGeometry( 10000, 10000 ).translate( 0, 0, -500),
+                	new THREE.MeshBasicMaterial( {color: 0xbfafaf} )
+                 );
+                scene2_wall.receiveShadow = true;
+                scene2_wall.name = 'scene2_wall';
+                scene.add( scene2_wall );
 			}
 
 			function animate() {
@@ -470,7 +549,7 @@
 
 			function render() {
 				controls.update();
-				switchToScene(0);
+				switchToScene(2);
 				renderer.render( scene, camera );
 			}
 
